@@ -1,0 +1,48 @@
+svector - sparse vector module for Python
+2010 March 17
+David Chiang
+
+This is a module for working with vectors that have symbolic names
+for dimensions (i.e., foo=1 bar=2 rather than [1,2]) and are
+represented sparsely (unset values default to 0 but don't take up
+space). They are handy for feature vectors in linear classifiers.
+
+Requires:
+  - Python (tested with 2.5.2)
+  - Cython (tested with 0.11.2)
+  - a C++ compiler
+
+To build:
+  python setup.py build
+  python setup.py install
+
+The second command installs svector.so in your default directory for
+Python modules. Or instead, you can look for build/lib.*/svector.so
+and install it where you like.
+
+Please see svector-example.py for how to use the module.
+
+-----
+
+Copyright (c) 2010, University of Southern California
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
