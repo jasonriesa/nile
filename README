@@ -99,17 +99,16 @@ sample training script, train.sh, in this distribution invoking only the
 flags required to get going. 
 
 A. Cluster computing
-The sample training script uses the Portable Batch System (PBS), a popular
-networked subsystem for controlling jobs on a computing cluster. You can
-remove the PBS directives at the top of the file if you are running locally
-on a single machine (we strongly recommend machines with multiple CPUs), or
-just modify the file to suit your architecture.
+   The sample training script uses the Portable Batch System (PBS), a popular
+   networked subsystem for controlling jobs on a computing cluster. You can
+   remove the PBS directives at the top of the file if you are running locally
+   on a single machine (we strongly recommend machines with multiple CPUs), or
+   just modify the file to suit your architecture.
 
 B. MPI
    Take note of where your MPI binaries, libraries, 
    and MPI Python bindings live. Then modify the MPI Initialization section
    with the appropriate paths.
-
  
 C. Training Name
    Every training run has a name. Your run's default name is: 
