@@ -619,7 +619,8 @@ if __name__ == "__main__":
     flags.DEFINE_string('pef',None,'p(e|f) file')
     flags.DEFINE_string('pfe',None,'p(f|e) file')
     flags.DEFINE_float('learningrate',1.0,'learning rate parameter for perceptron training; default: 1.0')
-    flags.DEFINE_string('hyp','fear','hypothesis to compare with oracle. one of {fear, 1best}; default: fear')
+    flags.DEFINE_string('hyp','1best','hypothesis to compare with oracle. one of
+    {fear, 1best}; default: 1best')
     flags.DEFINE_string('oracle','gold','type of oracle. one of {gold, hope}; default: gold')
     flags.DEFINE_string('weights_out',None,'output file for weights')
     flags.DEFINE_boolean('rescore',True,'True: do rescoring during bottom-up search; False: use only scores at initialization to determine 1best. Default: True')

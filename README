@@ -10,6 +10,7 @@ I. REQUIREMENTS
 II. PREPARING YOUR DATA
 III. TRAINING
 IV. TESTING
+V. QUESTIONS/COMMENTS
 
 I. REQUIREMENTS
 Nile currently depends on a few packages for
@@ -86,7 +87,76 @@ E.  Vocabulary files. We'll need to give the trainer (and aligner) some
     Concatenate your training and development e and f files and run
     prepare-vocab.py:
     $ cat train.e dev.e | ./prepare-vocab.py > e.vcb
-    $ cat train.f devfe | ./prepare-vocab.py > f.vcb
+    $ cat train.f dev.f | ./prepare-vocab.py > f.vcb
 
     Use these files as input to nile.py with flags --evcb and --fvcb.
 
+III. TRAINING
+
+Training a new model with Nile involves (1) specifying your data files
+as commandline arguments, and (2) invoking training mode. We provide a 
+sample training script, train.sh, in this distribution invoking only the 
+flags required to get going. 
+
+A. Cluster computing
+The sample training script uses the Portable Batch System (PBS), a popular
+networked subsystem for controlling jobs on a computing cluster. You can
+remove the PBS directives at the top of the file if you are running locally
+on a single machine (we strongly recommend machines with multiple CPUs), or
+just modify the file to suit your architecture.
+
+B. MPI
+   Take note of where your MPI binaries, libraries, 
+   and MPI Python bindings live. Then modify the MPI Initialization section
+   with the appropriate paths.
+
+ 
+C. Training Name
+   Every training run has a name. Your run's default name is: 
+   d<date>.k<beam-size>.n<cpu-pool-size>.<langpair>.target-tree.0
+
+D. Inspecting accuracy on the held-out data:
+   To inspect held-out F-scores, do: 
+   $ grep F-score-dev <name>.err
+
+   To sort held-out F-scores in descending order do: 
+   $ grep F-score-dev <name>.err | awk '{print $2}' | cat -n | sort -nr -k 2
+
+E. Convergence
+   If the highest-scoring epoch, H, is much earlier than your current 
+   epoch number, you have probably converged. Kill the training job 
+   and extract weights from epoch H:
+   $ ./weights <name> H
+
+   Weights will be written to file:
+   <name>.weights-H
+
+IV. TESTING
+  A. Editing test.sh
+     Edit the WEIGHTS= line in test.sh for your weights filename.
+     Also note that at test time, we replace the --train flag with the
+     --align flag when running nile.py.
+
+  B. Running test.sh
+     Then, run test script test.sh. Using PBS, do:
+     $ qsub test.sh
+
+     By default, alignment output is written in f-e format to:
+     <name>.weights-H.test-output.a
+  
+  C. Evaluation
+     If you are aligning data for which you have gold-standard alignments,
+     you can calculate F-measure using our provided scripts. Remember,
+     alignments are output in f-e format and should be compared against
+     data in the same format.
+     Usage: ./Fmeasure.py <your-file> <gold-file>
+
+V. QUESTIONS/COMMENTS
+
+Troubleshooting: 
+If you've gone through this brief guide and are having trouble getting 
+this software to work for you, send mail to Jason Riesa <riesa@isi.edu>.
+
+Technical correspondence also welcomed. 
+
+If you are interested in contributing to this project please also let us know!
