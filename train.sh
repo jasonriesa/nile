@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -l walltime=00:30:00,nodes=10:ppn=4
-#PBS -N nile-test
+#PBS -N nile-train
 
 cd $PBS_O_WORKDIR  # Connect to working directory
 ###################################################################
@@ -17,23 +17,20 @@ DATE=`date +%m%d%y`
 
 BASEDIR=/home/nlg-03/riesa/projects/alignment
 DATA=$BASEDIR/data
-TEST=$DATA/test
+TRAIN=$DATA/train
 LANGPAIR=zh-en
 
-WEIGHTS=my-training-run.weights-22
-NAME=$WEIGHTS.test-output.a
+NAME=d$DATE.k${K}.n$NUMCPUS.$LANGPAIR
 
 mpiexec -n $NUMCPUS $PYTHON nile.py \
-  --f $TEST/test.f \
-  --e $TEST/test.e \
-  --etrees $TEST/test.e-parse \
-  --ftrees $TEST/test.f-parse \
-  --evcb $TEST/test.e.vcb \
-  --fvcb $GOLD/test.f.vcb \
+  --f $TRAIN/train.f \
+  --e $TRAIN/train.e \
+  --etrees $TRAIN/train.e-parse \
+  --ftrees $TRAIN/train.f-parse \
+  --evcb $DATA/e.vcb \
+  --fvcb $DATA/f.vcb \
   --pef $DATA/GIZA++.m4.pef  \
   --pfe $DATA/GIZA++.m4.pfe \
-  --align \
   --langpair $LANGPAIR \
-  --weights $WEIGHTS \
-  --out $NAME \
-  --k $K
+  --train \
+  --k $K 1> $NAME.out 2> $NAME.err
