@@ -1,6 +1,8 @@
 v1.0 Initial public release -- 3/20/2012
+     (Code revision 1)
 
-v1.1 Low-level, but important bugfix release:
+v1.1 Low-level, but important bugfix release mostly relating to portability:
+     (Code revision 7)
      (1) NLPTreeHelper.py:stringToTree now reads standard Penn Treebank style trees
          instead of only ISI-format trees. README adds description of tree format.
      (2) NLPTree.py cleaned up.

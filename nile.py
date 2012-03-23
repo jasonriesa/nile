@@ -640,7 +640,7 @@ if __name__ == "__main__":
     flags.DEFINE_boolean('negreg', False, 'Only regularize negative weights')
     flags.DEFINE_boolean('debiasing', False, 'Training under de-biasing mode')
     flags.DEFINE_string('debiasing_weights', None, 'Features to use under de-biasing mode')
-    flags.DEFINE_string('tmpdir', None, 'User-defined directory location for temporary files')
+    flags.DEFINE_string('tempdir', None, 'User-defined directory location for temporary files')
     argv = FLAGS(sys.argv)
 
     if FLAGS.debiasing and FLAGS.debiasing_weights is None:
