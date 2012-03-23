@@ -25,7 +25,7 @@ logging, ui, implementation, and parallelization:
      A version is included in this distribution under svector/
      You can download the latest version from:
      http://www.isi.edu/~chiang/software/svector.tgz
-      
+
   D. An MPI Implementation. We use MPICH2.
      (http://www.mcs.anl.gov/research/projects/mpich2/)
      Download the latest stable release for your architecture.
@@ -50,9 +50,12 @@ A.  To train an alignment model you will need some data.
                 in train.f and train.e; each line in the file should be a
                 sequence of space-separated strings encoding a single link in
                 f-e format.
-                e.g.: 0-1 1-2 2-2 2-3 4-5  
+                e.g.: 0-1 1-2 2-2 2-3 4-5
     4. train.e-parse: a file of target-language parse trees, one for each line
-                in train.e
+                in train.e; trees should be in standard Penn Treebank format, e.g.:
+                (TOP (S (NP (DT the) (NN man)) (VP (VBD ate))))
+                We tokens -RRB- and -LRB- to represent right and left parentheses,
+                respectively.
     5. train.f-parse: a file of source-language parse-trees, one for each line
                 in train.f (OPTIONAL)
 
@@ -60,12 +63,12 @@ A.  To train an alignment model you will need some data.
     Source-tree files are optional, but all others are required.
 
 C.  T-Tables from GIZA++
-    We run GIZA++ Model-4 on a large corpus, and keep the t-tables and 
-    optionally, the final alignment files. We normalize the counts in 
-    the t-tables for each direction to get final p(e|f) and p(f|e) tables. 
+    We run GIZA++ Model-4 on a large corpus, and keep the t-tables and
+    optionally, the final alignment files. We normalize the counts in
+    the t-tables for each direction to get final p(e|f) and p(f|e) tables.
     If you don't have time to run Model-4, that's fine. We've seen benefits from
-    using counts from just HMM or Model-1 training. 
-        
+    using counts from just HMM or Model-1 training.
+
     p(e|f) file format:
     <e-word> <f-word> p(e|f)
 
@@ -75,12 +78,12 @@ C.  T-Tables from GIZA++
 D.  Alignment files from GIZA++ (OPTIONAL)
     You can pass up to two third-party alignment files to the trainer with flags
     --a1 and --a2 in nile.py. For --a1 we use intersection of Model-4 alignments
-    from e->f and f->e directions. For --a2 we use grow-diag-final-and 
-    symmetrizatized alignments. Feel free to substitute any other type of 
+    from e->f and f->e directions. For --a2 we use grow-diag-final-and
+    symmetrizatized alignments. Feel free to substitute any other type of
     alignments here as input.
 
 E.  Vocabulary files. We'll need to give the trainer (and aligner) some
-    vocabulary files it will use to filter potentially large p(e|f) and p(f|e) 
+    vocabulary files it will use to filter potentially large p(e|f) and p(f|e)
     data files. Keeping these full data files in memory can be prohibitively
     expensive.
 
@@ -94,9 +97,9 @@ E.  Vocabulary files. We'll need to give the trainer (and aligner) some
 III. TRAINING
 
 Training a new model with Nile involves (1) specifying your data files
-as commandline arguments, and (2) invoking training mode. We provide a 
-sample training script, train.sh, in this distribution invoking only the 
-flags required to get going. 
+as commandline arguments, and (2) invoking training mode. We provide a
+sample training script, train.sh, in this distribution invoking only the
+flags required to get going.
 
 A. Cluster computing
    The sample training script uses the Portable Batch System (PBS), a popular
@@ -106,24 +109,24 @@ A. Cluster computing
    just modify the file to suit your architecture.
 
 B. MPI
-   Take note of where your MPI binaries, libraries, 
+   Take note of where your MPI binaries, libraries,
    and MPI Python bindings live. Then modify the MPI Initialization section
    with the appropriate paths.
- 
+
 C. Training Name
-   Every training run has a name. Your run's default name is: 
+   Every training run has a name. Your run's default name is:
    d<date>.k<beam-size>.n<cpu-pool-size>.<langpair>.target-tree.0
 
 D. Inspecting accuracy on the held-out data:
-   To inspect held-out F-scores, do: 
+   To inspect held-out F-scores, do:
    $ grep F-score-dev <name>.err
 
-   To sort held-out F-scores in descending order do: 
+   To sort held-out F-scores in descending order do:
    $ grep F-score-dev <name>.err | awk '{print $2}' | cat -n | sort -nr -k 2
 
 E. Convergence
-   If the highest-scoring epoch, H, is much earlier than your current 
-   epoch number, you have probably converged. Kill the training job 
+   If the highest-scoring epoch, H, is much earlier than your current
+   epoch number, you have probably converged. Kill the training job
    and extract weights from epoch H:
    $ ./weights <name> H
 
@@ -142,7 +145,7 @@ IV. TESTING
 
      By default, alignment output is written in f-e format to:
      <name>.weights-H.test-output.a
-  
+
   C. Evaluation
      If you are aligning data for which you have gold-standard alignments,
      you can calculate F-measure using our provided scripts. Remember,
@@ -152,10 +155,10 @@ IV. TESTING
 
 V. QUESTIONS/COMMENTS
 
-Troubleshooting: 
-If you've gone through this brief guide and are having trouble getting 
+Troubleshooting:
+If you've gone through this brief guide and are having trouble getting
 this software to work for you, send mail to Jason Riesa <riesa@isi.edu>.
 
-Technical correspondence also welcomed. 
+Technical correspondence also welcomed.
 
 If you are interested in contributing to this project please also let us know!
