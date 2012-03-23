@@ -604,7 +604,7 @@ if __name__ == "__main__":
     flags.DEFINE_string('a2',None,'Third-party alignments in f-e format.')
     flags.DEFINE_string('inverse',None,'f-e inverse alignments (from bottom-up search on foreign tree)')
     flags.DEFINE_integer('init_k',None,'k = initialization beam size')
-    flags.DEFINE_integer('k',1,'k = beam size')
+    flags.DEFINE_integer('k',1,'k = standard beam size')
     flags.DEFINE_integer('maxepochs',100,'maximum number of epochs to run training')
     flags.DEFINE_string('fdev',None,'f heldout file')
     flags.DEFINE_string('edev',None,'e heldout file')
@@ -716,8 +716,11 @@ if __name__ == "__main__":
 
     tmpdir = None
     if mpi.rank == 0:
+      base_tmpdir = tempfile.gettempdir()
+      if base_tmpdir is None:
+        base_tmpdir = "."
       tmpdir = tempfile.mkdtemp(prefix='align-'+str(os.getpid())+'-',
-                                dir='/scratch')
+                                dir=base_tmpdir)
     tmpdir = mpi.broadcast(value=tmpdir, root=0)
 
 

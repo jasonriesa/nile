@@ -240,10 +240,11 @@ class Model(object):
     """
     queue = [ ]
     if self.etree.data is None:
-      # LOG(INFO, "Err: parse fail - sent (%s)\n" % (self.id))
+      LOG(INFO, "Err: parse fail - sent (%s)\n" % (self.id))
       empty = PartialGridAlignment()
       empty.score = None
       self.etree.partialAlignments.append(empty)
+      return
 
     # Add first-level nodes to the queue
     for terminal in self.etree.getTerminals():

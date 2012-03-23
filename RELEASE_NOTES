@@ -1,0 +1,9 @@
+v1.0 Initial public release -- 3/20/2012
+
+v1.1 Low-level, but important bugfix release:
+     (1) NLPTreeHelper.py:stringToTree now reads standard Penn Treebank style trees
+         instead of only ISI-format trees.
+     (2) NLPTree.py cleaned up.
+     (3) Fix stray newline in nile.py
+     (4) Acquire tempdir location from tempfile.gettempdir() instead of using hardcoded path.
+     (4) README adds description of tree format.
