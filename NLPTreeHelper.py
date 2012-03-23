@@ -94,6 +94,6 @@ def containsSpan(currentNode, fspan):
   return span[0] <= fspan[0] and span[1] >= fspan[1]
 
 if __name__ == "__main__":
-  treestr = "(TOP (S (NP (DT the) (NN man)) (VP (VBD ate))))"
-  tree = stringToTree_weakRef(treestr)
-  print tree
+    treestr = "(TOP (S (NP (DT the) (NN man)) (VP (VBD ate))))"
+    tree = stringToTree_weakRef(treestr)
+    print tree
