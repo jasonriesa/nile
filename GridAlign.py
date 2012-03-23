@@ -21,11 +21,12 @@
 #   Year = {2010}}
 #########################################################
 
-import sys, cPickle
+import cPickle
 from itertools import izip
 from operator import attrgetter
 from heapq import heappush, heapify, heappop, heappushpop
 from collections import defaultdict
+import sys
 
 from TerminalNode import TerminalNode
 from Alignment import readAlignmentString
@@ -240,7 +241,7 @@ class Model(object):
     """
     queue = [ ]
     if self.etree.data is None:
-      LOG(INFO, "Err: parse fail - sent (%s)\n" % (self.id))
+      #LOG(INFO, "Err: parse fail - sent (%s)\n" % (self.id))
       empty = PartialGridAlignment()
       empty.score = None
       self.etree.partialAlignments.append(empty)

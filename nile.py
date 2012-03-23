@@ -640,7 +640,7 @@ if __name__ == "__main__":
     flags.DEFINE_boolean('negreg', False, 'Only regularize negative weights')
     flags.DEFINE_boolean('debiasing', False, 'Training under de-biasing mode')
     flags.DEFINE_string('debiasing_weights', None, 'Features to use under de-biasing mode')
-
+    flags.DEFINE_string('tmpdir', None, 'User-defined directory location for temporary files')
     argv = FLAGS(sys.argv)
 
     if FLAGS.debiasing and FLAGS.debiasing_weights is None:
@@ -716,7 +716,10 @@ if __name__ == "__main__":
 
     tmpdir = None
     if mpi.rank == 0:
-      base_tmpdir = tempfile.gettempdir()
+      if FLAGS.tempdir is not None:
+        base_tmpdir = tempfile.gettempdir()
+      else:
+        base_tempdir = FLAGS.tempdir
       if base_tmpdir is None:
         base_tmpdir = "."
       tmpdir = tempfile.mkdtemp(prefix='align-'+str(os.getpid())+'-',
