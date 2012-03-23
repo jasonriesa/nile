@@ -717,9 +717,9 @@ if __name__ == "__main__":
     tmpdir = None
     if mpi.rank == 0:
       if FLAGS.tempdir is not None:
-        base_tmpdir = tempfile.gettempdir()
-      else:
         base_tempdir = FLAGS.tempdir
+      else:
+        base_tmpdir = tempfile.gettempdir()
       if base_tmpdir is None:
         base_tmpdir = "."
       tmpdir = tempfile.mkdtemp(prefix='align-'+str(os.getpid())+'-',
