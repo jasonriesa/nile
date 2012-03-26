@@ -22,11 +22,11 @@
 #########################################################
 
 import cPickle
+import sys
 from itertools import izip
 from operator import attrgetter
 from heapq import heappush, heapify, heappop, heappushpop
 from collections import defaultdict
-import sys
 
 from TerminalNode import TerminalNode
 from Alignment import readAlignmentString
@@ -35,7 +35,6 @@ from NLPTreeHelper import *
 import Fmeasure
 import svector
 import hminghkm
-from pyglog import *
 
 class Model(object):
   """
@@ -141,17 +140,8 @@ class Model(object):
     ########################################
     # Add Feature templates to model
     ########################################
-    if self.LANG == "ar-en":
-      self.featureTemplateSetup_local(LOCAL_FEATURES)
-      self.featureTemplateSetup_nonlocal(NONLOCAL_FEATURES)
-    elif self.LANG == "zh-en":
-      self.featureTemplateSetup_local(LOCAL_FEATURES)
-      self.featureTemplateSetup_nonlocal(NONLOCAL_FEATURES)
-    else:
-      self.featureTemplates_local(LOCAL_FEATURES)
-      self.featureTemplates_nonlocal(NONLOCAL_FEATURES)
-
-      sys.exit(1)
+    self.featureTemplateSetup_local(LOCAL_FEATURES)
+    self.featureTemplateSetup_nonlocal(NONLOCAL_FEATURES)
 
     # Data structures for feature function memoization
     self.diagValues = { }
@@ -241,7 +231,6 @@ class Model(object):
     """
     queue = [ ]
     if self.etree.data is None:
-      #LOG(INFO, "Err: parse fail - sent (%s)\n" % (self.id))
       empty = PartialGridAlignment()
       empty.score = None
       self.etree.partialAlignments.append(empty)
