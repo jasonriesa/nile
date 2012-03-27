@@ -11,3 +11,6 @@ v1.1 Low-level, but important bugfix release mostly relating to portability:
      (5) Added option to specify user-defined directory location for temporary files.
          Use flag --tempdir
      (6) Cleanup of train.sh and test.sh scripts.
+
+v1.11 Bugfix for importing features into model for new/unknown language pair.
+      (Code revision 14)
