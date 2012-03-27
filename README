@@ -1,4 +1,4 @@
-03/20/2012
+03/27/2012
 
 Nile -- a hierarchical, syntax-based discriminative alignment package
 
@@ -62,6 +62,11 @@ A.  To train an alignment model you will need some data.
     Also prepare heldout development and test data in the same manner.
     Source-tree files are optional, but all others are required.
 
+    A NOTE ABOUT PARSE TREES -- BINARIZE THEM:
+    Because of the way cube pruning works, you will encounter far fewer search errors
+    if you binarize your trees before training. You can binarize however you like, but
+    it is best to have only 2 children maximum per treenode. We do very simple right-binarization.
+
 C.  T-Tables from GIZA++
     We run GIZA++ Model-4 on a large corpus, and keep the t-tables and
     optionally, the final alignment files. We normalize the counts in
@@ -79,8 +84,12 @@ D.  Alignment files from GIZA++ (OPTIONAL)
     You can pass up to two third-party alignment files to the trainer with flags
     --a1 and --a2 in nile.py. For --a1 we use intersection of Model-4 alignments
     from e->f and f->e directions. For --a2 we use grow-diag-final-and
-    symmetrizatized alignments. Feel free to substitute any other type of
-    alignments here as input.
+    symmetrizatized alignments.
+
+    These alignments will allow the trainer to fire indicator features for making
+    the same predictions as your supplied alignments. Feel free to substitute any
+    other type of alignments here as input. Using GIZA++ Model-4 intersection and
+    grow-diag-final-and alignments here, we generally see a +2.0 F-score increase.
 
 E.  Vocabulary files. We'll need to give the trainer (and aligner) some
     vocabulary files it will use to filter potentially large p(e|f) and p(f|e)
@@ -117,6 +126,11 @@ C. Training Name
    Every training run has a name. Your run's default name is:
    d<date>.k<beam-size>.n<cpu-pool-size>.<langpair>.target-tree.0
 
+D. Running the program. On PBS, do:
+   $ qsub train.sh
+   Or, on a local machine with multiple CPUs, do:
+   $ ./train.sh
+
 D. Inspecting accuracy on the held-out data:
    To inspect held-out F-scores, do:
    $ grep F-score-dev <name>.err
@@ -134,19 +148,37 @@ E. Convergence
    <name>.weights-H
 
 IV. TESTING
-  A. Editing test.sh
+     At test time, it is important to use the same types of parameters and input data you used
+     during training. If you trained a model with a beam of K=128, then keep that beam at test time.
+     If you used GIZA++ Model-4 alignments as input with flags --a1 and --a2, then similarly also
+     supply alignment predictions from GIZA++ at test time. Finally, binarize your trees on test
+     data the same way you did for training and development data.
+
+  A. Preparing Vocabulary files:
+     As with the training and development data, prepare source and target vcb files.
+     $ ./prepare-vocab.py < test.e > test.e.vcb
+     $ ./prepare-vocab.py < test.f > test.f.vcb
+
+     Use these files as arguments for the --evcb and --fvcb flags to nile.py
+     in your testing script.
+
+  B. Editing test.sh
      Edit the WEIGHTS= line in test.sh for your weights filename.
-     Also note that at test time, we replace the --train flag with the
+
+  C. Set Nile to "align" mode.
+     At test time, we replace the --train flag with the
      --align flag when running nile.py.
 
-  B. Running test.sh
+  D. Running test.sh
      Then, run test script test.sh. Using PBS, do:
      $ qsub test.sh
+     Or, on a local machine with multiple CPUs:
+     $ ./test.sh
 
      By default, alignment output is written in f-e format to:
      <name>.weights-H.test-output.a
 
-  C. Evaluation
+  E. Evaluation
      If you are aligning data for which you have gold-standard alignments,
      you can calculate F-measure using our provided scripts. Remember,
      alignments are output in f-e format and should be compared against
