@@ -89,7 +89,7 @@ D.  Alignment files from GIZA++ (OPTIONAL)
     These alignments will allow the trainer to fire indicator features for making
     the same predictions as your supplied alignments. Feel free to substitute any
     other type of alignments here as input. Using GIZA++ Model-4 intersection and
-    grow-diag-final-and alignments here, we generally see a +2.0 F-score increase.
+    grow-diag-final-and alignments here, we generally see a large F-score increase.
 
 E.  Vocabulary files. We'll need to give the trainer (and aligner) some
     vocabulary files it will use to filter potentially large p(e|f) and p(f|e)
