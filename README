@@ -62,12 +62,25 @@ A.  To train an alignment model you will need some data.
     Also prepare heldout development and test data in the same manner.
     Source-tree files are optional, but all others are required.
 
-    A NOTE ABOUT PARSE TREES -- BINARIZE THEM:
+    6. NOTES ABOUT PARSE TREES
+    (i) Binarize them.
     Because of the way cube pruning works, you will encounter far fewer search errors
     if you binarize your trees before training. You can binarize however you like, but
     it is best to have only 2 children maximum per treenode. We do very simple right-binarization.
 
-C.  T-Tables from GIZA++
+    (ii) Relabel parenthesis tokens ( and ) before you parse.
+    Otherwise, the tree reader will get confused. We relabel them as -LRB- and -RRB-, respectively.
+    For example:
+    $ sed -e 's/(/-LRB-/g' -e 's/)/-RRB-/g' < input > input.clean
+    And then parse:
+    java -Xmx2600m -Xms2600m -jar berkeleyParser.jar \
+                             -gr eng_grammar.gr \
+                             -maxLength 1000 < input.clean > output
+
+    (iii) In case of sentences that failed to parse:
+    Use a blank line or a 0 on a line by itself to tell Nile to skip the affected sentence pair.
+
+C.  Tables from GIZA++
     We run GIZA++ Model-4 on a large corpus, and keep the t-tables and
     optionally, the final alignment files. We normalize the counts in
     the t-tables for each direction to get final p(e|f) and p(f|e) tables.
