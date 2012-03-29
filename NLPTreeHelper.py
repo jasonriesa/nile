@@ -6,10 +6,9 @@ import weakref
 
 from NLPTree import NLPTree
 from TerminalNode import TerminalNode
-
 def stringToTree_weakRef(str):
     """
-    Read PTB-style tree string and return the tree that the string encodes.
+    Read Berkeley Parser output style tree string and return the tree that the string encodes.
     """
     # Reset current class members
     rootNode = NLPTree()
@@ -21,8 +20,9 @@ def stringToTree_weakRef(str):
     eIndex = -1
 
     # Blank/Empty Tree
-    if str.rstrip() == '0':
-        return currentRoot;
+    str = str.rstrip()
+    if str == '0' or str == '':
+      return currentRoot;
     try:
       for token in str.split():
         if token[-1] == ')' and len(token) > 1:
@@ -47,10 +47,17 @@ def stringToTree_weakRef(str):
           while levelsToClose > 0 and currentRoot.parent is not None:
             currentRoot = currentRoot.parent()
             levelsToClose -= 1
+        elif token == ')':
+          # We are finished with this tree.
+          pass
         else:
           # token must begin with '('
           # Begin new subtree
-          tokenName = token[1:]
+          tokenName = None
+          if token == '(': # We are at the root
+            tokenName = "TOP"
+          else:
+            tokenName = token[1:]
           newChild = NLPTree(tokenName)
           newChild.parent = weakref.ref(currentRoot)
           if rootNode.data is None:
@@ -95,5 +102,5 @@ def containsSpan(currentNode, fspan):
 
 if __name__ == "__main__":
     treestr = "(TOP (S (NP (DT the) (NN man)) (VP (VBD ate))))"
-    tree = stringToTree_weakRef(treestr)
+    tree = stringToTree_berkeley_weakRef(treestr)
     print tree

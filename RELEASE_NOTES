@@ -1,5 +1,16 @@
-v1.0 Initial public release -- 3/20/2012
-     (Code revision 1)
+NILE - RELEASE NOTES
+====================
+
+v1.12 Minor changes to the tree reader.
+      (Code revision 18)
+      (1) Minor edits to NLPTreeHelper.stringToTree_weakRef to accept standard Berkeley trees
+          with no TOP symbols.
+      (2) Tree reader will now also ignore blank lines in the tree input file in addition to
+          lines with a 0 token on a line by itself. Useful in case you have sentences that
+          failed to parse.
+
+v1.11 Bugfix for importing features into model for new/unknown language pair.
+      (Code revision 14)
 
 v1.1 Low-level, but important bugfix release mostly relating to portability:
      (Code revision 12)
@@ -12,5 +23,5 @@ v1.1 Low-level, but important bugfix release mostly relating to portability:
          Use flag --tempdir
      (6) Cleanup of train.sh and test.sh scripts.
 
-v1.11 Bugfix for importing features into model for new/unknown language pair.
-      (Code revision 14)
+v1.0 Initial public release -- 3/20/2012
+     (Code revision 1)
