@@ -18,13 +18,13 @@ class LocalFeatures:
     self.punc = {',':True,'.':True,'!':True,'?':True,"'":True,'"':True,
                  ')':True,'(':True,':':True,';':True,'-':True,'@':True}
     # Chinese punctuation
-    #self.punc[u'\u3002']=True # Chinese period
-    #self.punc[u'\u201c']=True # Chinese quote
-    #self.punc[u'\u201d']=True # Chinese quote
-    #self.punc[u'\uff0c']=True # Chinese comma
-    #self.punc[u'\u3001']=True # Chinese comma
-    #self.punc[u'\uff0d']=True # Chinese dash
-    #self.punc[u'\uff1f']=True # Chinese question mark
+    self.punc[u'\u3002']=True # Chinese period
+    self.punc[u'\u201c']=True # Chinese quote
+    self.punc[u'\u201d']=True # Chinese quote
+    self.punc[u'\uff0c']=True # Chinese comma
+    self.punc[u'\u3001']=True # Chinese comma
+    self.punc[u'\uff0d']=True # Chinese dash
+    self.punc[u'\uff1f']=True # Chinese question mark
     self.months = {'january':True, 'february':True,'march':True,'april':True,
                    'may':True,'june':True,'july':True,'august':True,
                    'september':True,'october':True,'november':True,
