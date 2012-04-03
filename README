@@ -1,0 +1,196 @@
+03/27/2012
+
+Nile -- a hierarchical, syntax-based discriminative alignment package
+
+This document describes how to use and run Nile.
+
+CONTENTS
+========
+I. REQUIREMENTS
+II. PREPARING YOUR DATA
+III. TRAINING
+IV. TESTING
+V. QUESTIONS/COMMENTS
+
+I. REQUIREMENTS
+Nile currently depends on a few packages for
+logging, ui, implementation, and parallelization:
+  A. python-gflags: a commandline flags module for python
+     (http://code.google.com/p/python-gflags/)
+
+  B. pyglog: a logging facility for python based on google-glog
+     (http://www.isi.edu/~riesa/software/pyglog)
+
+  C. svector: a python module for sparse vectors, by David Chiang
+     A version is included in this distribution under svector/
+     You can download the latest version from:
+     http://www.isi.edu/~chiang/software/svector.tgz
+
+  D. An MPI Implementation. We use MPICH2.
+     (http://www.mcs.anl.gov/research/projects/mpich2/)
+     Download the latest stable release for your architecture.
+     Then follow the Installer's Guide, available in the documentation
+     section of the website.
+     See Section II for more information.
+
+  E. Boost MPI Python bindings.
+     (http://www.boost.org/users/download/)
+     Installation instructions:
+     http://www.boost.org/doc/libs/1_49_0/doc/html/mpi.html
+
+II. PREPARING YOUR DATA
+
+A.  To train an alignment model you will need some data.
+    We use some simple canonical filenames below in describing each, but
+    you can call them anything you'd like.
+
+    1. train.f: a file of source-language sentences, one per line.
+    2. train.e: a file of target-language sentences, one per line.
+    3. train.a: a file of gold-standard alignments for each sentence pair
+                in train.f and train.e; each line in the file should be a
+                sequence of space-separated strings encoding a single link in
+                f-e format.
+                e.g.: 0-1 1-2 2-2 2-3 4-5
+    4. train.e-parse: a file of target-language parse trees, one for each line
+                in train.e; trees should be in standard Penn Treebank format, e.g.:
+                (TOP (S (NP (DT the) (NN man)) (VP (VBD ate))))
+                We tokens -RRB- and -LRB- to represent right and left parentheses,
+                respectively.
+    5. train.f-parse: a file of source-language parse-trees, one for each line
+                in train.f (OPTIONAL)
+
+    Also prepare heldout development and test data in the same manner.
+    Source-tree files are optional, but all others are required.
+
+    A NOTE ABOUT PARSE TREES -- BINARIZE THEM:
+    Because of the way cube pruning works, you will encounter far fewer search errors
+    if you binarize your trees before training. You can binarize however you like, but
+    it is best to have only 2 children maximum per treenode. We do very simple right-binarization.
+
+C.  T-Tables from GIZA++
+    We run GIZA++ Model-4 on a large corpus, and keep the t-tables and
+    optionally, the final alignment files. We normalize the counts in
+    the t-tables for each direction to get final p(e|f) and p(f|e) tables.
+    If you don't have time to run Model-4, that's fine. We've seen benefits from
+    using counts from just HMM or Model-1 training.
+
+    p(e|f) file format:
+    <e-word> <f-word> p(e|f)
+
+    p(f|e) file format:
+    <f-word> <e-word> p(f|e)
+
+D.  Alignment files from GIZA++ (OPTIONAL)
+    You can pass up to two third-party alignment files to the trainer with flags
+    --a1 and --a2 in nile.py. For --a1 we use intersection of Model-4 alignments
+    from e->f and f->e directions. For --a2 we use grow-diag-final-and
+    symmetrizatized alignments.
+
+    These alignments will allow the trainer to fire indicator features for making
+    the same predictions as your supplied alignments. Feel free to substitute any
+    other type of alignments here as input. Using GIZA++ Model-4 intersection and
+    grow-diag-final-and alignments here, we generally see a large F-score increase.
+
+E.  Vocabulary files. We'll need to give the trainer (and aligner) some
+    vocabulary files it will use to filter potentially large p(e|f) and p(f|e)
+    data files. Keeping these full data files in memory can be prohibitively
+    expensive.
+
+    Concatenate your training and development e and f files and run
+    prepare-vocab.py:
+    $ cat train.e dev.e | ./prepare-vocab.py > e.vcb
+    $ cat train.f dev.f | ./prepare-vocab.py > f.vcb
+
+    Use these files as input to nile.py with flags --evcb and --fvcb.
+
+III. TRAINING
+
+Training a new model with Nile involves (1) specifying your data files
+as commandline arguments, and (2) invoking training mode. We provide a
+sample training script, train.sh, in this distribution invoking only the
+flags required to get going.
+
+A. Cluster computing
+   The sample training script uses the Portable Batch System (PBS), a popular
+   networked subsystem for controlling jobs on a computing cluster. You can
+   remove the PBS directives at the top of the file if you are running locally
+   on a single machine (we strongly recommend machines with multiple CPUs), or
+   just modify the file to suit your architecture.
+
+B. MPI
+   Take note of where your MPI binaries, libraries,
+   and MPI Python bindings live. Then modify the MPI Initialization section
+   with the appropriate paths.
+
+C. Training Name
+   Every training run has a name. Your run's default name is:
+   d<date>.k<beam-size>.n<cpu-pool-size>.<langpair>.target-tree.0
+
+D. Running the program. On PBS, do:
+   $ qsub train.sh
+   Or, on a local machine with multiple CPUs, do:
+   $ ./train.sh
+
+D. Inspecting accuracy on the held-out data:
+   To inspect held-out F-scores, do:
+   $ grep F-score-dev <name>.err
+
+   To sort held-out F-scores in descending order do:
+   $ grep F-score-dev <name>.err | awk '{print $2}' | cat -n | sort -nr -k 2
+
+E. Convergence
+   If the highest-scoring epoch, H, is much earlier than your current
+   epoch number, you have probably converged. Kill the training job
+   and extract weights from epoch H:
+   $ ./weights <name> H
+
+   Weights will be written to file:
+   <name>.weights-H
+
+IV. TESTING
+     At test time, it is important to use the same types of parameters and input data you used
+     during training. If you trained a model with a beam of K=128, then keep that beam at test time.
+     If you used GIZA++ Model-4 alignments as input with flags --a1 and --a2, then similarly also
+     supply alignment predictions from GIZA++ at test time. Finally, binarize your trees on test
+     data the same way you did for training and development data.
+
+  A. Preparing Vocabulary files:
+     As with the training and development data, prepare source and target vcb files.
+     $ ./prepare-vocab.py < test.e > test.e.vcb
+     $ ./prepare-vocab.py < test.f > test.f.vcb
+
+     Use these files as arguments for the --evcb and --fvcb flags to nile.py
+     in your testing script.
+
+  B. Editing test.sh
+     Edit the WEIGHTS= line in test.sh for your weights filename.
+
+  C. Set Nile to "align" mode.
+     At test time, we replace the --train flag with the
+     --align flag when running nile.py.
+
+  D. Running test.sh
+     Then, run test script test.sh. Using PBS, do:
+     $ qsub test.sh
+     Or, on a local machine with multiple CPUs:
+     $ ./test.sh
+
+     By default, alignment output is written in f-e format to:
+     <name>.weights-H.test-output.a
+
+  E. Evaluation
+     If you are aligning data for which you have gold-standard alignments,
+     you can calculate F-measure using our provided scripts. Remember,
+     alignments are output in f-e format and should be compared against
+     data in the same format.
+     Usage: ./Fmeasure.py <your-file> <gold-file>
+
+V. QUESTIONS/COMMENTS
+
+Troubleshooting:
+If you've gone through this brief guide and are having trouble getting
+this software to work for you, send mail to Jason Riesa <riesa@isi.edu>.
+
+Technical correspondence also welcomed.
+
+If you are interested in contributing to this project please also let us know!
