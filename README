@@ -4,15 +4,22 @@ Nile -- a hierarchical, syntax-based discriminative alignment package
 
 This document describes how to use and run Nile.
 
+============================================
 CONTENTS
-========
+============================================
 I. REQUIREMENTS
 II. PREPARING YOUR DATA
 III. TRAINING
-IV. TESTING
-V. QUESTIONS/COMMENTS
+IV. ITERATIVE VITERBI TRAINING & INFERENCE
+V. TESTING
+VI. OTHER OPTIONS
+VII. QUESTIONS/COMMENTS
+VIII. KNOWN ISSUES
+IX. REFERENCES
 
+============================================
 I. REQUIREMENTS
+============================================
 Nile currently depends on a few packages for
 logging, ui, implementation, and parallelization:
   A. python-gflags: a commandline flags module for python
@@ -38,7 +45,9 @@ logging, ui, implementation, and parallelization:
      Installation instructions:
      http://www.boost.org/doc/libs/1_49_0/doc/html/mpi.html
 
+============================================
 II. PREPARING YOUR DATA
+============================================
 
 A.  To train an alignment model you will need some data.
     We use some simple canonical filenames below in describing each, but
@@ -54,25 +63,39 @@ A.  To train an alignment model you will need some data.
     4. train.e-parse: a file of target-language parse trees, one for each line
                 in train.e; trees should be in standard Penn Treebank format, e.g.:
                 (TOP (S (NP (DT the) (NN man)) (VP (VBD ate))))
-                We tokens -RRB- and -LRB- to represent right and left parentheses,
-                respectively.
+                We use tokens -RRB- and -LRB- to represent right and left parentheses,
+                respectively (see below).
     5. train.f-parse: a file of source-language parse-trees, one for each line
                 in train.f (OPTIONAL)
 
     Also prepare heldout development and test data in the same manner.
     Source-tree files are optional, but all others are required.
 
-    A NOTE ABOUT PARSE TREES -- BINARIZE THEM:
+    SOME NOTES ABOUT PARSE TREES:
+    (i) BINARIZE THEM.
     Because of the way cube pruning works, you will encounter far fewer search errors
     if you binarize your trees before training. You can binarize however you like, but
     it is best to have only 2 children maximum per treenode. We do very simple right-binarization.
+
+    (ii) We relabel parentheses tokens before parsing,
+         i.e. "(" -> -LRB- and ")" -> -RRB-. For example:
+         $ sed -e 's/(/-LRB-/g' -e 's/)/-RRB-/g' < input > input.clean
+
+         And then we parse, by doing:
+         java -Xmx2600m -Xms2600m -jar berkeleyParser.jar \
+              -gr eng_grammar.gr \
+              -maxLength 1000 < input.clean > output
 
 C.  T-Tables from GIZA++
     We run GIZA++ Model-4 on a large corpus, and keep the t-tables and
     optionally, the final alignment files. We normalize the counts in
     the t-tables for each direction to get final p(e|f) and p(f|e) tables.
+
     If you don't have time to run Model-4, that's fine. We've seen benefits from
     using counts from just HMM or Model-1 training.
+
+    You can also compute similar tables from simply counting links
+    in your final Viterbi alignment.
 
     p(e|f) file format:
     <e-word> <f-word> p(e|f)
@@ -103,7 +126,9 @@ E.  Vocabulary files. We'll need to give the trainer (and aligner) some
 
     Use these files as input to nile.py with flags --evcb and --fvcb.
 
+============================================
 III. TRAINING
+============================================
 
 Training a new model with Nile involves (1) specifying your data files
 as commandline arguments, and (2) invoking training mode. We provide a
@@ -147,12 +172,69 @@ E. Convergence
    Weights will be written to file:
    <name>.weights-H
 
-IV. TESTING
-     At test time, it is important to use the same types of parameters and input data you used
-     during training. If you trained a model with a beam of K=128, then keep that beam at test time.
-     If you used GIZA++ Model-4 alignments as input with flags --a1 and --a2, then similarly also
-     supply alignment predictions from GIZA++ at test time. Finally, binarize your trees on test
-     data the same way you did for training and development data.
+
+============================================
+IV. ITERATIVE VITERBI TRAINING & INFERENCE
+============================================
+This procedure is somewhat time-consuming because you will need to train several models,
+and align your data several times. However, if you have the time, the improvement in
+alignment quality may be worth it.
+
+Parse trees for both target and source text are required for this procedure.
+
+1. Train a target-tree model as in section III.
+2. Train a source-tree model by:
+    (a) Transform your gold-standard data to e-f format; source-tree models will read and output
+        alignments in e-f format as opposed to f-e format.
+        $ perl -pe 's/(\d+)-(\d+)/$2-$1/g' < train.a.f-e > train.e.e-f
+    (b) flip the argument flags for your e and f data when you run Nile. For example:
+          python nile.py \
+            --e train.f \
+            --f train.e \
+            --gold train.a.e-f \
+            --ftrees train.e-parse \
+            --etrees train.f-parse \
+            --fdev dev.e \
+            --edev dev.f \
+            --ftreesdev dev.e-parse \
+            --etreesdev dev.f-parse \
+            --golddev dev.a.e-f \
+            --fvcb e.vcb \
+            --evcb f.vcb \
+            --pfe GIZA++.m4.pef \
+            --pef GIZA++.m4.pfe \
+            --a1 train.m4i.e-f \
+            --a2 train.m4gdfa.e-f \
+            --a1_dev dev.m4i.e-f \
+            --a2_dev dev.m4gdfa.e-f \
+            --langpair zh-en \
+            --train \
+            --k 128
+
+3. The next step of training involves learning target-tree and source-tree models again, but this time giving as input the outputs of the models learned in the first round. You do this with the --inverse and --inverse_dev flags.
+  (a) Run Nile in --align mode and align your training data and then dev data with the
+      source-tree model you've learned.
+  (b) Flip the alignment links to f-e format and supply these to your next target-tree
+      training with --inverse and --inverse_dev, e.g.:
+
+      nile.py --e train.e --f train.f --a train.a.f-e --inverse train-st.a.f-e ... etc.
+
+      Nile will fire features to softly enforce agreement between the two models.
+
+  (c) Analogously, for your next source-tree model, flip the aligned 1-best alignments
+      of your training and dev data from the target-tree model to e-f format, and supply
+      it to Nile with the --inverse and --inverse_dev flags:
+
+      nile.py --e train.f --f train.e --a train.e.e-f --inverse train-tt.a.e-f ... etc.
+
+============================================
+V. TESTING
+============================================
+At test time, it is important to use the same types of parameters and input data you used
+during training. If you trained a model with a beam of K=128, then keep that beam at test time.
+If you used GIZA++ Model-4 alignments as input with flags --a1 and --a2, then similarly also
+supply alignment predictions from GIZA++ at test time. Finally, binarize your trees on test
+data the same way you did for training and development data.
 
   A. Preparing Vocabulary files:
      As with the training and development data, prepare source and target vcb files.
@@ -185,7 +267,58 @@ IV. TESTING
      data in the same format.
      Usage: ./Fmeasure.py <your-file> <gold-file>
 
-V. QUESTIONS/COMMENTS
+
+============================================
+VI. OTHER OPTIONS
+============================================
+  A. L1 Regularization (Feature Selection; experimental)
+  Nile implements a parallelized version of L1 Regularization via projection after each epoch.
+  (Hastie 1996; Duchi et al., 2008; Martins et al. 2011)
+
+  Enabling this feature will allow you to learn a much smaller model that, in our experiments,
+  should achieve essentially the same accuracy or better. This is useful for scaling to very large
+  training sets, and you may also see some generalization benefits.
+
+  To enable, set Nile's L1 Tau coefficient variable to 1 with commandline flag:
+  --tau 1
+
+ B. Debiasing (experimental)
+ While L1 yields sparse solutions, these solutions are known to be biased in magnitude which may
+ negatively affect accuracy. After learning a sparse model with L1, we train a new model but this
+ time, we only allow the features we learned in our sparse model to fire. This is called Debiasing.
+
+  To enable:
+  1. Turn debiasing mode on:
+    --debiasing
+  2. Tell Nile about the weight vector you learned during the L1 feature selection step,
+  use --debiasing_weights and supply a weight vector in svector format:
+    --debiasing_weights <sparse-model weights>
+  (Make sure you have removed the --tau flag from your Nile invocation.)
+
+C. Advanced Perceptron Updates
+  1. Changing the default Oracle.
+     In selecting the oracle towards which we update, Chiang et al. (2008)
+     find that in their task, modify the traditional selection criterion from minimized loss
+     to a linear combination of minimized loss and model score. We call this the "hope" oracle,
+     because we have more of a chance to reach it; it has high model score and low loss.
+     To use a "hope" oracle, use flag and argument:
+     --oracle hope
+  2. Changing the default hypothesis.
+     In selecting the hypothesis that we update our model away from (and towards the oracle),
+     we can select a hypothesis somewhat analogously to selecting the "hope" oracle as described above.
+     In this case, we modify the default selection criterion from maximum model score to a linear combination
+     of maximum model score and maximum loss. We call this the "fear" hypothesis; it has the nefarious property
+     of having both a high model score (our model likes it), but also very high loss (it is a bad alignment).
+     To use a "fear" hypothesis, use flag and argument:
+     --hyp fear
+  3. Changing the default learning rate.
+     There is a single learning rate parameter used in the standard perceptron update which affects
+     the magnitude of each update. It is set to 1.0 by default. To use a different learning rate, use:
+     --learning_rate <new learning rate>
+
+============================================
+VII. QUESTIONS/COMMENTS
+============================================
 
 Troubleshooting:
 If you've gone through this brief guide and are having trouble getting
@@ -194,3 +327,32 @@ this software to work for you, send mail to Jason Riesa <riesa@isi.edu>.
 Technical correspondence also welcomed.
 
 If you are interested in contributing to this project please also let us know!
+
+============================================
+VIII. KNOWN ISSUES
+============================================
+1. The --decodetrain option for measuring F-score on training data is broken.
+2. The code that implements the --dumpforest option is not included in this release; it will be
+   included at a later date along with a new module to read and traverse alignment derivations.
+   We use this option for work described in (Riesa and Marcu, 2012).
+
+============================================
+IX. REFERENCES
+============================================
+David Chiang, Yuval Marton, and Philip Resnick. Online Large-Margin Training of Syntactic and
+Structural Translation Features. 2008. Proceedings of EMNLP, pages. 224-233.
+
+John Duchi, Shai Shalev-Schwartz, Yoram Singer, and Tushar Chandra. 2008. Proceedings of ICML.
+
+Andre F. T. Martins, Noah A. Smith, Pedro M. Q. Aguiar, Mario A. T. Figueiredo. Structured Sparsity
+in Structured Prediction. 2011. Proceedings of EMNLP, pages 1500-1511.
+
+Jason Riesa and Daniel Marcu. Hierarchical Seach for Word Alignment. 2010. Proceedings of ACL, pages 157-166.
+
+Jason Riesa, Ann Irvine, and Daniel Marcu. Feature-Rich Language-Independent Syntax-Based Alignment
+for Statistical Machine Translation. 2011. Proceedings of EMNLP, pages 497-507.
+
+Jason Riesa and Daniel Marcu. Automatic Parallel Fragment Extraction from Noisy Data. 2012. Proceedings of
+the NAACL HLT. To appear.
+
+Robert Tibshirani. Regression shrinkage and selection via the lasso. 1996. J. Royal. Statist. Soc B., Vol. 58, No. 1, pages 267-288.
