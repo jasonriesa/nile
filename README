@@ -1,4 +1,4 @@
-03/27/2012
+04/05/2012
 
 Nile -- a hierarchical, syntax-based discriminative alignment package
 
@@ -211,7 +211,10 @@ Parse trees for both target and source text are required for this procedure.
             --train \
             --k 128
 
-3. The next step of training involves learning target-tree and source-tree models again, but this time giving as input the outputs of the models learned in the first round. You do this with the --inverse and --inverse_dev flags.
+3. The next step of training involves learning target-tree and
+   source-tree models again, but this time giving as input the
+   outputs of the models learned in the first round. You do this
+   with the --inverse and --inverse_dev flags.
   (a) Run Nile in --align mode and align your training data and then dev data with the
       source-tree model you've learned.
   (b) Flip the alignment links to f-e format and supply these to your next target-tree
@@ -298,22 +301,27 @@ VI. OTHER OPTIONS
 C. Advanced Perceptron Updates
   1. Changing the default Oracle.
      In selecting the oracle towards which we update, Chiang et al. (2008)
-     find that in their task, modify the traditional selection criterion from minimized loss
-     to a linear combination of minimized loss and model score. We call this the "hope" oracle,
-     because we have more of a chance to reach it; it has high model score and low loss.
+     find that in their task, modify the traditional selection criterion
+     from minimized loss to a linear combination of minimized loss and
+     model score. We call this the "hope" oracle, because we have more
+     of a chance to reach it; it has high model score and low loss.
      To use a "hope" oracle, use flag and argument:
      --oracle hope
   2. Changing the default hypothesis.
-     In selecting the hypothesis that we update our model away from (and towards the oracle),
-     we can select a hypothesis somewhat analogously to selecting the "hope" oracle as described above.
-     In this case, we modify the default selection criterion from maximum model score to a linear combination
-     of maximum model score and maximum loss. We call this the "fear" hypothesis; it has the nefarious property
-     of having both a high model score (our model likes it), but also very high loss (it is a bad alignment).
+     In selecting the hypothesis that we update our model away from
+     (and towards the oracle), we can select a hypothesis somewhat
+     analogously to selecting the "hope" oracle as described above.
+     In this case, we modify the default selection criterion from
+     maximum model score to a linear combination of maximum model
+     score and maximum loss. We call this the "fear" hypothesis;
+     it has the nefarious property of having both a high model score
+     (our model likes it), but also very high loss (it is a bad alignment).
      To use a "fear" hypothesis, use flag and argument:
      --hyp fear
   3. Changing the default learning rate.
-     There is a single learning rate parameter used in the standard perceptron update which affects
-     the magnitude of each update. It is set to 1.0 by default. To use a different learning rate, use:
+     There is a single learning rate parameter used in the standard perceptron
+     update which affects the magnitude of each update. It is set to 1.0 by default.
+     To use a different learning rate, use:
      --learning_rate <new learning rate>
 
 ============================================
