@@ -72,10 +72,11 @@ A.  To train an alignment model you will need some data.
     Source-tree files are optional, but all others are required.
 
     SOME NOTES ABOUT PARSE TREES:
-    (i) BINARIZE THEM.
-    Because of the way cube pruning works, you will encounter far fewer search errors
-    if you binarize your trees before training. You can binarize however you like, but
-    it is best to have only 2 children maximum per treenode. We do very simple right-binarization.
+    (i) Binarize them.
+        Because of the way cube pruning works, you will encounter far fewer
+        search errors if you binarize your trees before training. You can
+        binarize however you like, but it is best to have only 2 children
+        maximum per treenode. We do very simple right-binarization.
 
     (ii) We relabel parentheses tokens before parsing,
          i.e. "(" -> -LRB- and ")" -> -RRB-. For example:
@@ -86,16 +87,17 @@ A.  To train an alignment model you will need some data.
               -gr eng_grammar.gr \
               -maxLength 1000 < input.clean > output
 
-(iii) In case of sentences that failed to parse:
-      Use a blank line or a 0 on a line by itself to tell Nile to skip the affected sentence pair.
+     (iii) In case of sentences that failed to parse:
+           Use a blank line or a 0 on a line by itself
+           to tell Nile to skip the affected sentence pair.
 
 C.  Tables from GIZA++
     We run GIZA++ Model-4 on a large corpus, and keep the t-tables and
     optionally, the final alignment files. We normalize the counts in
     the t-tables for each direction to get final p(e|f) and p(f|e) tables.
 
-    If you don't have time to run Model-4, that's fine. We've seen benefits from
-    using counts from just HMM or Model-1 training.
+    If you don't have time to run Model-4, that's fine. We've seen benefits
+    from using counts from just HMM or Model-1 training.
 
     You can also compute similar tables from simply counting links
     in your final Viterbi alignment.
@@ -179,17 +181,19 @@ E. Convergence
 ============================================
 IV. ITERATIVE VITERBI TRAINING & INFERENCE
 ============================================
-This procedure is somewhat time-consuming because you will need to train several models,
-and align your data several times. However, if you have the time, the improvement in
-alignment quality may be worth it.
+This procedure is somewhat time-consuming because you will need to train several
+models, and align your data several times. However, if you have the time, the
+improvement in alignment quality may be worth it.
 
 Parse trees for both target and source text are required for this procedure.
 
 1. Train a target-tree model as in section III.
 2. Train a source-tree model by:
-    (a) Transform your gold-standard data to e-f format; source-tree models will read and output
-        alignments in e-f format as opposed to f-e format.
+    (a) Transform your gold-standard data to e-f format;
+        source-tree models will read and output alignments in
+        e-f format as opposed to f-e format.
         $ perl -pe 's/(\d+)-(\d+)/$2-$1/g' < train.a.f-e > train.e.e-f
+
     (b) flip the argument flags for your e and f data when you run Nile. For example:
           python nile.py \
             --e train.f \
@@ -218,8 +222,10 @@ Parse trees for both target and source text are required for this procedure.
    source-tree models again, but this time giving as input the
    outputs of the models learned in the first round. You do this
    with the --inverse and --inverse_dev flags.
+
   (a) Run Nile in --align mode and align your training data and then dev data with the
       source-tree model you've learned.
+
   (b) Flip the alignment links to f-e format and supply these to your next target-tree
       training with --inverse and --inverse_dev, e.g.:
 
