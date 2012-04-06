@@ -91,7 +91,7 @@ A.  To train an alignment model you will need some data.
            Use a blank line or a 0 on a line by itself
            to tell Nile to skip the affected sentence pair.
 
-C.  Tables from GIZA++
+C.  Tables from GIZA++ (Brown et al., 1993; Och and Ney, 2003)
     We run GIZA++ Model-4 on a large corpus, and keep the t-tables and
     optionally, the final alignment files. We normalize the counts in
     the t-tables for each direction to get final p(e|f) and p(f|e) tables.
@@ -356,20 +356,33 @@ VIII. KNOWN ISSUES
 ============================================
 IX. REFERENCES
 ============================================
-David Chiang, Yuval Marton, and Philip Resnick. Online Large-Margin Training of Syntactic and
-Structural Translation Features. 2008. Proceedings of EMNLP, pages. 224-233.
+Peter F. Brown, Stephen A. Della Pietra, Vincent J. Della Pietra, Robert L. Mercer.
+The Mathematics of Statistical Machine Translation: Parameter Estimation.
+Computational Linguistics, Volume 19, Number 2, pages 263-311. June 1993.
 
-John Duchi, Shai Shalev-Schwartz, Yoram Singer, and Tushar Chandra. 2008. Proceedings of ICML.
+David Chiang, Yuval Marton, and Philip Resnick. Online Large-Margin Training
+of Syntactic and Structural Translation Features. 2008. Proceedings of EMNLP,
+pages. 224-233.
 
-Andre F. T. Martins, Noah A. Smith, Pedro M. Q. Aguiar, Mario A. T. Figueiredo. Structured Sparsity
-in Structured Prediction. 2011. Proceedings of EMNLP, pages 1500-1511.
+John Duchi, Shai Shalev-Schwartz, Yoram Singer, and Tushar Chandra. Efficient
+Projections onto the L1-Ball for Learning in High Dimensions. 2008. Proceedings of ICML.
 
-Jason Riesa and Daniel Marcu. Hierarchical Seach for Word Alignment. 2010. Proceedings of ACL, pages 157-166.
+Andre F. T. Martins, Noah A. Smith, Pedro M. Q. Aguiar, Mario A. T. Figueiredo.
+Structured Sparsity in Structured Prediction. 2011. Proceedings of EMNLP,
+pages 1500-1511.
 
-Jason Riesa, Ann Irvine, and Daniel Marcu. Feature-Rich Language-Independent Syntax-Based Alignment
-for Statistical Machine Translation. 2011. Proceedings of EMNLP, pages 497-507.
+Franz Josef Och and Hermann Ney. A Systematic Comparison of Various Statistical Alignment Models.
+Computational Linguistics, Volume 29, Number 1, pages 19-51. March 2003.
 
-Jason Riesa and Daniel Marcu. Automatic Parallel Fragment Extraction from Noisy Data. 2012. Proceedings of
-the NAACL HLT. To appear.
+Jason Riesa and Daniel Marcu. Hierarchical Seach for Word Alignment. 2010.
+Proceedings of ACL, pages 157-166.
 
-Robert Tibshirani. Regression shrinkage and selection via the lasso. 1996. J. Royal. Statist. Soc B., Vol. 58, No. 1, pages 267-288.
+Jason Riesa, Ann Irvine, and Daniel Marcu. Feature-Rich Language-Independent
+Syntax-Based Alignment for Statistical Machine Translation. 2011.
+Proceedings of EMNLP, pages 497-507.
+
+Jason Riesa and Daniel Marcu. Automatic Parallel Fragment Extraction from Noisy Data.
+2012. Proceedings of the NAACL HLT. To appear.
+
+Robert Tibshirani. Regression shrinkage and selection via the lasso. 1996.
+J. Royal. Statist. Soc B., Vol. 58, No. 1, pages 267-288.
