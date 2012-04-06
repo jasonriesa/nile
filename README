@@ -86,7 +86,10 @@ A.  To train an alignment model you will need some data.
               -gr eng_grammar.gr \
               -maxLength 1000 < input.clean > output
 
-C.  T-Tables from GIZA++
+(iii) In case of sentences that failed to parse:
+      Use a blank line or a 0 on a line by itself to tell Nile to skip the affected sentence pair.
+
+C.  Tables from GIZA++
     We run GIZA++ Model-4 on a large corpus, and keep the t-tables and
     optionally, the final alignment files. We normalize the counts in
     the t-tables for each direction to get final p(e|f) and p(f|e) tables.
