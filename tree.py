@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-# riesa@isi.edu (Jason Riesa)
-# Python tree class for reading and processing PTB-style trees
-
 import weakref
 
 class Tree(object):

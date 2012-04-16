@@ -27,9 +27,6 @@ class Alignment(object):
     # Index links by column, or e index
     self.eLinks = defaultdict(list)
     # Index links also by row, or f index
-    # self.fLinks = defaultdict(list)
-    # Memoized span sums: how many links exist within the given span
-    # Will only hold O(n) keys; No. treenodes is O(n)
     self.numLinksInSpan = { }
     self.linksInSpan = { }
     self.read(str)
