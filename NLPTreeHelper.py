@@ -1,5 +1,3 @@
-#!/usr/env python
-
 import re
 import sys
 import weakref
@@ -21,7 +19,7 @@ def stringToTree_weakRef(str):
 
     # Blank/Empty Tree
     str = str.rstrip()
-    if str == '0' or str == '':
+    if str == '0' or str == '(())' or str == '':
       return currentRoot;
     try:
       for token in str.split():
@@ -99,8 +97,3 @@ def containsSpan(currentNode, fspan):
   """
   span = currentNode.get_span()
   return span[0] <= fspan[0] and span[1] >= fspan[1]
-
-if __name__ == "__main__":
-    treestr = "(TOP (S (NP (DT the) (NN man)) (VP (VBD ate))))"
-    tree = stringToTree_berkeley_weakRef(treestr)
-    print tree
