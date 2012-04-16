@@ -663,7 +663,8 @@ if __name__ == "__main__":
     elif FLAGS.langpair == 'zh-en':
       import Features
     else:
-      LOG(INFO, "Language pair %s unknown. Using generic featureset." %(FLAGS.langpair))
+      if myRank == 0:
+        LOG(INFO, "Language pair %s unknown. Using generic featureset." %(FLAGS.langpair))
       import Features
 
     pid = str(os.getpid())
