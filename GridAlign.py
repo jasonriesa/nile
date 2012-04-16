@@ -231,7 +231,6 @@ class Model(object):
     """
     queue = [ ]
     if self.etree.data is None:
-      print "EMPTY TREE"
       empty = PartialGridAlignment()
       empty.score = None
       self.etree.partialAlignments.append(empty)
