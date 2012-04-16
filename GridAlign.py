@@ -785,7 +785,6 @@ class Model(object):
 
     for index1, obj1 in enumerate(bestTgtWords[0:LIMIT]):
       for _, obj2 in enumerate(bestTgtWords[index1+1:LIMIT]):
-        # clear contents of twoLinkPartialAlignment
         tgtIndex_a = obj1[1]
         tgtIndex_b = obj2[1]
         # Don't consider a pair (tgtIndex_a, tgtIndex_b) if distance between
@@ -971,6 +970,4 @@ class Model(object):
     if precision == 0 or recall == 0:
       return 0.0
     f1 = (2*precision*recall) / (precision + recall)
-    # Favor recall a la Fraser '07
-    # f_recall = 1./((0.1/precision)+(0.9/recall))
     return f1
