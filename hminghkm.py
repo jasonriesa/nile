@@ -27,10 +27,10 @@ stdout:
 
 import itertools
 import sys
-import tree
 
 import NLPTree
 import NLPTreeHelper
+import Tree
 
 class Rule(object):
   def __init__(self, f, e):

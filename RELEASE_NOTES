@@ -1,6 +1,11 @@
 NILE - RELEASE NOTES
 ====================
 
+v1.14 Bugfix release. (Code revision 28)
+      (1) Fixes bug related to the processing of empty failed parse
+          trees in training data.
+      (2) Minor code cleanup and style fixes.
+
 v1.12 Minor changes to the tree reader.
       (Code revision 18)
       (1) Minor edits to NLPTreeHelper.stringToTree_weakRef to accept standard Berkeley trees

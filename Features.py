@@ -1,12 +1,11 @@
 #########################################################
 # Features.py
 # riesa@isi.edu (Jason Riesa)
-# Local and Non-Local Generic, Language Independent Feature Function Templates
+# Feature Function Templates
 #########################################################
 
 from collections import defaultdict
 from NLPTreeHelper import containsSpan
-import subprocess
 import sys
 import hminghkm as minghkm
 
@@ -372,7 +371,7 @@ class LocalFeatures:
     """
     if currentNode is not None:
       pos = currentNode.data
-    name = self.ff_probEgivenF.func_name + '___' + pos
+    name = self.ff_probEgivenF.func_name + '___' + pos + '_nb'
 
     # Calculate feature function value
     sum = 0.0
@@ -500,7 +499,7 @@ class NonlocalFeatures:
 
   def ff_nonlocal_dummy(self, info, treeNode, edge, links, srcSpan, tgtSpan, linkedToWords, childEdges, diagValues, treeDistValues):
     """
-    Just a dummy feature. For debugging purposes only. Returns no value.
+    Just a dummy feature. For debugging purposes only. Always returns a zero value.
     """
     name = self.ff_nonlocal_dummy.func_name
     return {name: 0}
@@ -601,7 +600,6 @@ class NonlocalFeatures:
     except:
       return {}
     return values
-
 
   def ff_nonlocal_horizGridDistance(self, info,  treeNode, edge, links, srcSpan, tgtSpan, linkedToWords, childEdges, diagValues, treeDistValues):
     """

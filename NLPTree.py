@@ -4,7 +4,7 @@
 
 import re
 import weakref
-from tree import Tree
+from Tree import Tree
 from PartialGridAlignment import PartialGridAlignment
 
 class NLPTree(Tree):
