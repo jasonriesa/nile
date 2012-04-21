@@ -10,11 +10,11 @@ CONTENTS
 I. REQUIREMENTS
 II. PREPARING YOUR DATA
 III. TRAINING
-IV. ITERATIVE VITERBI TRAINING & INFERENCE
-V. TESTING
-VI. OTHER OPTIONS
-VII. QUESTIONS/COMMENTS
-VIII. KNOWN ISSUES
+IV. USER-DEFINED FEATURES
+V. ITERATIVE VITERBI TRAINING & INFERENCE
+VI. TESTING
+VII. OTHER OPTIONS
+VIII. QUESTIONS/COMMENTS
 IX. REFERENCES
 
 ============================================
@@ -71,36 +71,32 @@ A.  To train an alignment model you will need some data.
     Also prepare heldout development and test data in the same manner.
     Source-tree files are optional, but all others are required.
 
-    SOME NOTES ABOUT PARSE TREES:
-    (i) Binarize them.
-        Because of the way cube pruning works, you will encounter far fewer
-        search errors if you binarize your trees before training. You can
-        binarize however you like, but it is best to have only 2 children
-        maximum per treenode. We do very simple right-binarization.
-
-    (ii) We relabel parentheses tokens before parsing,
+    (i) We relabel parentheses tokens before parsing,
          i.e. "(" -> -LRB- and ")" -> -RRB-. For example:
          $ sed -e 's/(/-LRB-/g' -e 's/)/-RRB-/g' < input > input.clean
 
          And then we parse, by doing:
          java -Xmx2600m -Xms2600m -jar berkeleyParser.jar \
               -gr eng_grammar.gr \
+              -binarize \
               -maxLength 1000 < input.clean > output
 
-     (iii) In case of sentences that failed to parse:
-           Use a blank line or a 0 on a line by itself
-           to tell Nile to skip the affected sentence pair.
+         Because of the way cube pruning works, you will encounter far fewer
+         search errors if you binarize your trees before training by using the
+         -binarize flag.
 
-C.  Tables from GIZA++ (Brown et al., 1993; Och and Ney, 2003)
-    We run GIZA++ Model-4 on a large corpus, and keep the t-tables and
-    optionally, the final alignment files. We normalize the counts in
-    the t-tables for each direction to get final p(e|f) and p(f|e) tables.
+    (ii) In case of sentences that failed to parse:
+         Use a blank line, a 0 on a line by itself,
+         or the Berkeley parser default failure string: (())
+         to tell Nile to skip the affected sentence pair.
+
+C.  Tables from GIZA++ output (Brown et al., 1993; Och and Ney, 2003)
+    We run GIZA++ Model-4 on a large corpus, and compute p(e|f) and p(f|w)
+    word association tables from simply counting links in the final Viterbi
+    alignment.
 
     If you don't have time to run Model-4, that's fine. We've seen benefits
     from using counts from just HMM or Model-1 training.
-
-    You can also compute similar tables from simply counting links
-    in your final Viterbi alignment.
 
     p(e|f) file format:
     <e-word> <f-word> p(e|f)
@@ -177,10 +173,29 @@ E. Convergence
    Weights will be written to file:
    <name>.weights-H
 
+=====================================================
+IV. USER-DEFINED FEATURES
+=====================================================
+You can add your own feature functions to Features.py
+or maintain several different Feature modules for different
+language pairs.
 
-============================================
-IV. ITERATIVE VITERBI TRAINING & INFERENCE
-============================================
+If you want to have Feature modules for, say,
+Arabic-English and Chinese-English, name them:
+Features_ar_en.py and Features_zh_en.py respectively.
+
+Setting the --langpair flag with argument LANG1_LANG2 will
+tell Nile to use these modules. Nile will look for a file called:
+Features_LANG1_LANG2.py.
+
+nile.py --e train.e \
+        --f train.f \
+        ...
+        --langpair ar_en
+
+=====================================================
+V. ITERATIVE VITERBI TRAINING & INFERENCE (optional)
+=====================================================
 This procedure is somewhat time-consuming because you will need to train several
 models, and align your data several times. However, if you have the time, the
 improvement in alignment quality may be worth it.
@@ -240,7 +255,7 @@ Parse trees for both target and source text are required for this procedure.
       nile.py --e train.f --f train.e --a train.e.e-f --inverse train-tt.a.e-f ... etc.
 
 ============================================
-V. TESTING
+VI. TESTING
 ============================================
 At test time, it is important to use the same types of parameters and input data you used
 during training. If you trained a model with a beam of K=128, then keep that beam at test time.
@@ -281,7 +296,7 @@ data the same way you did for training and development data.
 
 
 ============================================
-VI. OTHER OPTIONS
+VII. OTHER OPTIONS
 ============================================
   A. L1 Regularization (Feature Selection; experimental)
   Nile implements a parallelized version of L1 Regularization via projection after each epoch.
@@ -334,7 +349,7 @@ C. Advanced Perceptron Updates
      --learning_rate <new learning rate>
 
 ============================================
-VII. QUESTIONS/COMMENTS
+VIII. QUESTIONS/COMMENTS
 ============================================
 
 Troubleshooting:
@@ -344,14 +359,6 @@ this software to work for you, send mail to Jason Riesa <riesa@isi.edu>.
 Technical correspondence also welcomed.
 
 If you are interested in contributing to this project please also let us know!
-
-============================================
-VIII. KNOWN ISSUES
-============================================
-1. The --decodetrain option for measuring F-score on training data is broken.
-2. The code that implements the --dumpforest option is not included in this release; it will be
-   included at a later date along with a new module to read and traverse alignment derivations.
-   We use this option for work described in (Riesa and Marcu, 2012).
 
 ============================================
 IX. REFERENCES

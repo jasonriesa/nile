@@ -792,7 +792,7 @@ class Model(object):
         # Don't consider a pair (tgtIndex_a, tgtIndex_b) if distance between
         # these indices > 1 (Arabic/English only).
         # Need to debug feature that is supposed to deal with this naturally.
-        if self.LANG == "ar-en":
+        if self.LANG == "ar_en":
           if (abs(tgtIndex_b - tgtIndex_a) > 1):
             continue
 

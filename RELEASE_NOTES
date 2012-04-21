@@ -1,6 +1,6 @@
 NILE - RELEASE NOTES
 ====================
-
+v1.2  Bugfixes and usability improvements thanks to user feedback.
 v1.14 Bugfix release. (Code revision 28)
       (1) Fixes bug related to the processing of empty failed parse
           trees in training data.
@@ -30,3 +30,14 @@ v1.1 Low-level, but important bugfix release mostly relating to portability:
 
 v1.0 Initial public release -- 3/20/2012
      (Code revision 1)
+
+
+ACKNOWLEDGEMENTS
+================
+Thanks very much to:
+ David Chiang
+ Philipp Koehn
+ Sasa Hasan
+ Zhongqiang Huang
+ Ashish Vaswani
+for helping to test this software and providing valuable feedback.
