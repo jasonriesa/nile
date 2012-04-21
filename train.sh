@@ -18,6 +18,7 @@ DATE=`date +%m%d%y`
 BASEDIR=/home/nlg-03/riesa/projects/alignment
 DATA=$BASEDIR/data
 TRAIN=$DATA/train
+DEV=$DATA/dev
 
 NAME=d$DATE.k${K}.n$NUMCPUS.$LANGPAIR
 
