@@ -569,14 +569,6 @@ def do_training(indices, training_blob, heldout_blob, weights, weights_out, debi
       cPickle.dump(newWeights_avg, weights_out, protocol=cPickle.HIGHEST_PROTOCOL)
  	    # Need to flush output somehow here. Does weights_out.flush() work?
       weights_out.flush()
-    ##################################################
-    # Try a corpus re-decode here with the new weights
-    # This returns the TRAINING F-SCORE
-    ##################################################
-    if FLAGS.decodetrain:
-      io_helper.write_master("RE-DECODING WITH NEW WEIGHTS FROM PREVIOUS EPOCH\n")
-      io_helper.write_master("===EPOCH %d DECODE TRAIN===\n" %(epoch))
-      decode_parallel(newWeights_avg, indices, training_blob, "train")
 
     ##################################################
     # Try a corpus re-decode here with the new weights
@@ -588,7 +580,6 @@ def do_training(indices, training_blob, heldout_blob, weights, weights_out, debi
       decode_parallel(newWeights_avg, indices_dev, heldout_blob, "dev")
   if myRank == 0:
     weights_out.close()
-
 
 if __name__ == "__main__":
     myRank = mpi.rank
@@ -615,7 +606,7 @@ if __name__ == "__main__":
     flags.DEFINE_string('a2_dev',None,'Third-party alignments in f-e format for heldout data')
     flags.DEFINE_string('inverse_dev',None,'f-e inverse alignments (from bottom-up search on foreign tree)')
     flags.DEFINE_string('srctags',None,'srctags file')
-    flags.DEFINE_string('langpair','ar-en','language pair: one of {ar-en, zh-en}. default: ar-en')
+    flags.DEFINE_string('langpair',None,'tell Nile what language-pair it is working on (mostly for importing specific feature sets); default: None')
     flags.DEFINE_string('pef',None,'p(e|f) file')
     flags.DEFINE_string('pfe',None,'p(f|e) file')
     flags.DEFINE_float('learningrate',1.0,'learning rate parameter for perceptron training; default: 1.0')
@@ -625,13 +616,11 @@ if __name__ == "__main__":
     flags.DEFINE_boolean('rescore',True,'True: do rescoring during bottom-up search; False: use only scores at initialization to determine 1best. Default: True')
     flags.DEFINE_boolean('train', False, 'Run discriminative training')
     flags.DEFINE_boolean('align', False, 'Align data with parameters from --weights')
-    flags.DEFINE_boolean('decodetrain',False,'Align training data with new weight vector after each epoch.')
     flags.DEFINE_boolean('decodeheldout',True,'Align heldout data with new weight vector after each epoch.')
     flags.DEFINE_boolean('shuffle',True,'Randomize training instances for each epoch.')
     flags.DEFINE_string('notes','','Any extra notes for this training run')
     flags.DEFINE_boolean('source', False, 'Search bottom-up on the source trees.')
     flags.DEFINE_boolean('target', True, 'Search bottom-up on the target trees.')
-    flags.DEFINE_boolean('dumpforest',False,'Dump whole forest to files.')
     flags.DEFINE_string('out',None,'Output file for alignments in --align mode')
     flags.DEFINE_boolean('skipbadtrees',True,'Skip trees w/o parses')
     flags.DEFINE_integer('subset', None, 'Read only the first k training, dev examples')
@@ -651,20 +640,25 @@ if __name__ == "__main__":
     ##################################################
     # Import features for the specified language-pair
     ##################################################
-    if FLAGS.langpair == 'ar-en':
-      # To use language specific features for, e.g. Arabic, copy the Features.py
-      # module to a file called Features_ar.py and add your new feature
-      # functions to the file. Then, uncomment this line below and comment out
-      # the line that imports the generic Features module:
-      #
-      # import Features_ar as Features
-      #
-      import Features
-    elif FLAGS.langpair == 'zh-en':
-      import Features
+    # To use language specific features for, e.g. Arabic-English,
+    # copy the generic Features.py module to a file called
+    # Features_ar_en.py and add your new feature functions
+    # functions to the file. Then, just call nile with flag:
+    # --features ar_en
+    # This will cause Nile to load module Features_ar_en.py
+    # instead of the standard Features.py
+    #
+    if FLAGS.langpair is not None:
+      try:
+        Features = __import__("Features_%s" % (FLAGS.langpair))
+      except:
+        if myRank == 0:
+          err_msg = "Language pair %s specified; " %(FLAGS.langpair)
+          err_msg += "language-specific features Features_%s.py not found. " %(FLAGS.langpair)
+          err_msg += "Using standard featureset."
+          LOG(INFO, err_msg)
+        import Features
     else:
-      if myRank == 0:
-        LOG(INFO, "Language pair %s unknown. Using generic featureset." %(FLAGS.langpair))
       import Features
 
     pid = str(os.getpid())
