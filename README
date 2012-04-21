@@ -71,7 +71,27 @@ A.  To train an alignment model you will need some data.
     Also prepare heldout development and test data in the same manner.
     Source-tree files are optional, but all others are required.
 
-    (i) We relabel parentheses tokens before parsing,
+    Throughout the rest of this document we use the same filename extensions
+    as above for our development and test data, e.g.:
+    dev.e <-- target-language sentences in heldout development data
+    dev.f <-- source-language sentences in heldout development data
+    test.e <-- target-language sentences in heldout test data
+    test.f <-- source-language sentences in heldout test data
+
+    ADDITIONAL NOTES:
+    (i) Why use a heldout development (dev) and test set?
+        After every epoch of training Nile checks it's
+        current performance on this dev set. When performance is no longer
+        increasing on this dev set, we say that we've converged and we stop
+        training. (Section III(D) and III(E))
+
+        Since we select the alignment model to ultimately use based on
+        performance on our development set, we need a second heldout set
+        to as a way to predict performance on truly unseen future data.
+        Using the model we select based on development performance in
+        Section III(E), we align our test.* data and note the accuracy.
+
+    (ii) We relabel parentheses tokens before parsing,
          i.e. "(" -> -LRB- and ")" -> -RRB-. For example:
          $ sed -e 's/(/-LRB-/g' -e 's/)/-RRB-/g' < input > input.clean
 
