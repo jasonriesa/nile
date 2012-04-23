@@ -157,7 +157,7 @@ class Model(object):
     self.info['ftree'] = self.ftree
 
   ########################################
-  # Initialize feature function list -- ar
+  # Initialize feature function list
   ########################################
   def featureTemplateSetup_local(self, localFeatures):
     """
@@ -182,11 +182,11 @@ class Model(object):
     self.featureTemplates.append(localFeatures.ff_thirdParty)
 
   ##################################################
-  # Inititalize feature function list -- nonlocal
+  # Inititalize feature function list
   ##################################################
   def featureTemplateSetup_nonlocal(self, nonlocalFeatures):
     """
-    Incorporate the following "nonlocal" features into our model.
+    Incorporate the following combination-cost features into our model.
     """
     #self.featureTemplates_nonlocal.append(nonlocalFeatures.ff_nonlocal_dummy)
     self.featureTemplates_nonlocal.append(nonlocalFeatures.ff_nonlocal_hminghkm)

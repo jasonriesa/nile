@@ -3,7 +3,7 @@ NILE - RELEASE NOTES
 v1.2  Bugfixes and usability improvements thanks to user feedback.
       (Code revision 33)
       (1) Fix a bug related to ignoring failed parse trees in training data.
-      (2) New mechanism for sepcifying language-specific or user-supplied featuresets.
+      (2) New mechanism for specifying language-specific or user-supplied featuresets.
           See README section IV.
       (3) Updated README for clarity.
       (4) Modified the example train.sh training script to include flags for development data.
