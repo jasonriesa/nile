@@ -650,11 +650,13 @@ if __name__ == "__main__":
     #
     if FLAGS.langpair is not None:
       try:
+        if myRank == 0:
+          LOG(INFO, "Language pair %s specified; loading %s featureset." %(FLAGS.langpair, FLAGS.langpair))
         Features = __import__("Features_%s" % (FLAGS.langpair))
       except:
         if myRank == 0:
           err_msg = "Language pair %s specified; " %(FLAGS.langpair)
-          err_msg += "language-specific features Features_%s.py not found. " %(FLAGS.langpair)
+          err_msg += "could not import language-specific features Features_%s.py. " %(FLAGS.langpair)
           err_msg += "Using standard featureset."
           LOG(INFO, err_msg)
         import Features
