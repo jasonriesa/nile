@@ -655,7 +655,7 @@ if __name__ == "__main__":
         Features = __import__("Features_%s" % (FLAGS.langpair))
       except:
         if myRank == 0:
-          err_msg += "could not import language-specific features Features_%s.py. " %(FLAGS.langpair)
+          err_msg = "Could not import language-specific features Features_%s.py. " %(FLAGS.langpair)
           err_msg += "Using standard featureset."
           LOG(INFO, err_msg)
         import Features
