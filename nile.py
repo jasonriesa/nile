@@ -644,7 +644,7 @@ if __name__ == "__main__":
     # copy the generic Features.py module to a file called
     # Features_ar_en.py and add your new feature functions
     # functions to the file. Then, just call nile with flag:
-    # --features ar_en
+    # --langpair ar_en
     # This will cause Nile to load module Features_ar_en.py
     # instead of the standard Features.py
     #
@@ -655,7 +655,6 @@ if __name__ == "__main__":
         Features = __import__("Features_%s" % (FLAGS.langpair))
       except:
         if myRank == 0:
-          err_msg = "Language pair %s specified; " %(FLAGS.langpair)
           err_msg += "could not import language-specific features Features_%s.py. " %(FLAGS.langpair)
           err_msg += "Using standard featureset."
           LOG(INFO, err_msg)

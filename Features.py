@@ -8,6 +8,7 @@ from collections import defaultdict
 from NLPTreeHelper import containsSpan
 import sys
 import hminghkm as minghkm
+from pyglog import *
 
 class LocalFeatures:
   def __init__(self, pef, pfe):
@@ -98,6 +99,9 @@ class LocalFeatures:
     name = self.ff_identity.func_name
     if len(links) == 1:
       link = links[0]
+      CHECK_GT(len(info['f']), 0, "Length of f sentence is 0.")
+      CHECK_GT(len(info['e']), 0, "Length of e sentence is 0.")
+
       if info['f'][link[0]] == info['e'][link[1]]:
         return {name: 1.0}
     return {name: 0.0}
